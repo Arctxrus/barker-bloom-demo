@@ -1,0 +1,15 @@
+# tooling / local only
+.claude/
+.agents/
+skills-lock.json
+references/
+design-system/
+
+# internal design docs — contain pitch notes & real local business/people names; DO NOT publish
+DESIGN.md
+REDESIGN.md
+
+# OS / editor
+Thumbs.db
+.DS_Store
+*.log
