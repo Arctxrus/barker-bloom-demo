@@ -17,7 +17,7 @@
 <link rel="preconnect" href="https://images.unsplash.com" crossorigin />
 <link rel="preload" href="fonts/fredoka-latin.woff2" as="font" type="font/woff2" crossorigin />
 <link rel="preload" href="fonts/nunitosans-latin.woff2" as="font" type="font/woff2" crossorigin />
-<link rel="stylesheet" href="styles.css?v=7" />
+<link rel="stylesheet" href="styles.css?v=8" />
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%90%BE%3C/text%3E%3C/svg%3E" />
 
 <script type="application/ld+json">
@@ -150,6 +150,8 @@
         <p class="section__lead">Prices start from the figures below and depend a little on coat condition and how much your dog enjoys the fuss. We’ll always confirm before we start, so there’s never a surprise at pick-up.</p>
       </header>
 
+      <div class="offer-tag-wrap"><span class="offer-tag bold-butter">£5 off your first groom, booked online</span></div>
+
       <div class="bento">
         <article class="tile tile--full bold-blush">
           <span class="tile__flag">Most popular</span>
@@ -248,6 +250,16 @@
     </div>
   </section>
 
+  <!-- ============ SLIM CTA BAND (after the glow-up) ============ -->
+  <section class="cta-slim" aria-label="Book a groom">
+    <div class="container">
+      <div class="cta-slim__inner">
+        <p class="cta-slim__line">Fancy this for your dog?</p>
+        <a class="btn btn--primary" href="#book">Book a groom</a>
+      </div>
+    </div>
+  </section>
+
   <!-- ============ REVIEWS · scattered speech bubbles ============ -->
   <section class="reviews" id="reviews">
     <div class="container">
@@ -255,6 +267,7 @@
         <p class="eyebrow"><span class="dot"></span> Kind words</p>
         <h2>What the humans say</h2>
       </header>
+      <p class="rating-line"><span class="rating-line__stars" aria-hidden="true">★</span> <strong>4.9</strong> · from 180+ happy owners</p>
       <div class="bubbles">
         <blockquote class="bubble bubble--1 bold-blush">
           <div class="stars" aria-label="5 out of 5 stars">★★★★★</div>
@@ -329,6 +342,10 @@
           <summary><span class="bubble-q">What if my dog’s coat is matted?</span></summary>
           <div class="qa__a"><span class="rosie-avatar" aria-hidden="true">R</span><span class="bubble-a">I’ll never hurt a dog to save a coat. If matting is tight, the kindest thing is often a shorter clip to start fresh, and I’ll always show you and talk it through first. From there, regular grooms keep it easy and comfortable.</span></div>
         </details>
+        <details class="qa">
+          <summary><span class="bubble-q">Is there a first-visit offer?</span></summary>
+          <div class="qa__a"><span class="rosie-avatar" aria-hidden="true">R</span><span class="bubble-a">There is! Book your dog’s first groom online and you’ll get <strong>£5 off</strong>. Just let me know it’s their first visit when you book.</span></div>
+        </details>
       </div>
     </div>
   </section>
@@ -339,7 +356,12 @@
       <header class="section__head">
         <p class="eyebrow"><span class="dot"></span> Book their day out</p>
         <h2>Request a booking</h2>
+        <p class="rating-line rating-line--sm"><span class="rating-line__stars" aria-hidden="true">★</span> <strong>4.9</strong> · from 180+ happy owners</p>
         <p class="section__lead">Two quick steps and we’ll text you back to confirm. Prefer to talk? Call <a href="tel:+447700900123">07700&nbsp;900123</a>.</p>
+        <ul class="book-reassure">
+          <li><svg viewBox="0 0 24 24" class="tick" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg> No payment needed to request</li>
+          <li><svg viewBox="0 0 24 24" class="tick" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg> We usually text back the same day</li>
+        </ul>
       </header>
 
       <form class="stepper" id="bookForm" novalidate>
@@ -513,6 +535,6 @@
   <a class="btn btn--primary mobar__book" href="#book">Book a groom</a>
 </div>
 
-<script src="script.js?v=7" defer></script>
+<script src="script.js?v=8" defer></script>
 </body>
 </html>
