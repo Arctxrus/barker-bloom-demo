@@ -122,9 +122,11 @@ section[id]{padding-block:clamp(48px,8vw,96px)}
   box-shadow:-10px 0 40px rgba(62,43,34,.18);padding:84px 24px 32px;display:flex;flex-direction:column;gap:4px;
   transform:translateX(100%);transition:transform .28s var(--ease);overflow-y:auto;overscroll-behavior:contain}
 .mobile-menu.is-open{transform:translateX(0)}
-.mobile-menu a{color:var(--ink);font-family:var(--font-head);font-weight:500;font-size:1.15rem;padding:14px 8px;border-bottom:1px solid var(--border)}
-.mobile-menu a:hover{text-decoration:none;color:var(--clay-deep)}
-.mobile-menu__book{margin-top:18px;border-bottom:0}.mobile-menu__book:hover{color:#fff}
+/* drawer text links (exclude .btn so the shared .btn colour stays the single
+   source of truth for clay CTAs — the Book button keeps its white text) */
+.mobile-menu a:not(.btn){color:var(--ink);font-family:var(--font-head);font-weight:500;font-size:1.15rem;padding:14px 8px;border-bottom:1px solid var(--border)}
+.mobile-menu a:not(.btn):hover{text-decoration:none;color:var(--clay-deep)}
+.mobile-menu__book{margin-top:18px}
 .mobile-menu__call{display:inline-flex;align-items:center;gap:.5em;border-bottom:0;color:var(--clay-deep);font-size:1.05rem}
 .mobile-menu__close{position:absolute;top:20px;right:20px;width:44px;height:44px;display:inline-flex;align-items:center;justify-content:center;background:var(--surface);border:1px solid var(--border);border-radius:50%;color:var(--ink);cursor:pointer}
 body.menu-open{overflow:hidden}
@@ -338,6 +340,9 @@ section.hero{padding-top:var(--nav-space);padding-bottom:clamp(36px,6vw,72px)}
 
 /* ---------- Visit ticket ---------- */
 .ticket{display:grid;grid-template-columns:1fr;background:var(--surface);border-radius:var(--r-xl);box-shadow:var(--shadow-md);overflow:hidden;max-width:960px;margin-inline:auto}
+/* let the 1fr track shrink below the map's intrinsic min-width (aspect-ratio +
+   min-height give it a ~373px min-content) so content stays inside the card */
+.ticket>*{min-width:0}
 .ticket__stub{padding:clamp(24px,4vw,34px)}
 .ticket__label{font-family:var(--font-head);font-weight:600;text-transform:uppercase;letter-spacing:.1em;font-size:.75rem;color:var(--clay-deep);margin:0 0 14px}
 .ticket__addr{font-style:normal;font-size:1.05rem;margin-bottom:.7em}
@@ -348,7 +353,9 @@ section.hero{padding-top:var(--nav-space);padding-bottom:clamp(36px,6vw,72px)}
 .hours .closed{color:var(--clay-deep);font-weight:600}
 .ticket__perf{position:relative;background:var(--surface)}
 .ticket__main{padding:clamp(16px,3vw,22px)}
-.map-embed{position:relative;border-radius:var(--r-lg);overflow:hidden;background:var(--sage-mint);min-height:280px;aspect-ratio:4/3}
+/* fluid height (no aspect-ratio + min-height, which forced an intrinsic width
+   wider than the card on mobile); width always follows the parent */
+.map-embed{position:relative;border-radius:var(--r-lg);overflow:hidden;background:var(--sage-mint);width:100%;height:clamp(220px,55vw,300px)}
 .map-embed iframe{position:absolute;inset:0;width:100%;height:100%;border:0;z-index:2}
 .map-fallback{position:absolute;inset:0;z-index:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:10px;padding:24px;color:var(--sage)}
 .map-fallback__pin{color:var(--clay)}.map-fallback p{margin:0;color:var(--ink)}
