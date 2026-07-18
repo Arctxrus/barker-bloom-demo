@@ -16,6 +16,19 @@
   window.addEventListener('scroll', navState, { passive: true });
   navState();
 
+  /* ---------- Nav clearance: derive --nav-space from the nav's real height ---------- */
+  var navInner = document.querySelector('.nav__inner');
+  function setNavSpace() {
+    if (!navInner) return;
+    var inset = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--nav-inset'), 10) || 12;
+    var h = Math.round(navInner.getBoundingClientRect().height);
+    document.documentElement.style.setProperty('--nav-space', (h + inset + 30) + 'px');
+  }
+  setNavSpace();
+  window.addEventListener('resize', setNavSpace, { passive: true });
+  window.addEventListener('load', setNavSpace);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(setNavSpace);
+
   /* ---------- Nav scroll-position capsule (scroll spy) ---------- */
   var spyLabel = document.getElementById('spyLabel');
   var navLinks = document.querySelectorAll('.nav__links a');
