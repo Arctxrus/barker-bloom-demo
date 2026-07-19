@@ -393,7 +393,6 @@ section.hero{padding-top:var(--nav-space);padding-bottom:clamp(36px,6vw,72px)}
   .ticket__perf{width:18px}
   .ticket__perf::before{left:50%;top:0;bottom:0;right:auto;border-top:0;border-left:2px dashed var(--border)}
   .ticket__perf::after{left:-1px;top:-12px}
-  .ticket__perf .notch-b{content:"";position:absolute;left:-1px;bottom:-12px;width:24px;height:24px;border-radius:50%;background:var(--cream)}
 }
 
 /* ---------- Footer ---------- */
@@ -409,7 +408,7 @@ section.hero{padding-top:var(--nav-space);padding-bottom:clamp(36px,6vw,72px)}
 .footer__bar{border-top:1px solid rgba(255,255,255,.12);margin-top:32px;padding-top:20px;display:flex;flex-direction:column;gap:8px}
 .footer__demo{font-size:.85rem;color:#C9B4A6;margin:0}.footer__demo strong{color:#F3E4D8}
 .footer__paw{display:inline-flex;color:var(--clay-bright);vertical-align:-.14em}
-.footer__bar>p:last-child{font-size:.82rem;color:#A6907F;margin:0}
+.footer__bar>p:last-child{font-size:.82rem;color:#B29C8C;margin:0}
 @media (min-width:700px){.footer__grid{grid-template-columns:1.5fr 1fr 1.2fr}}
 @media (min-width:760px){.footer{margin-bottom:0}}
 
