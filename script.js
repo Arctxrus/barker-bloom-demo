@@ -29,33 +29,30 @@
   window.addEventListener('load', setNavSpace);
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(setNavSpace);
 
-  /* ---------- Nav scroll-position capsule (scroll spy) ---------- */
-  var spyLabel = document.getElementById('spyLabel');
+  /* ---------- Scroll spy: highlight the current section's nav link ----------
+     Measures live rather than caching offsets: lazy-loaded images shift the
+     page after load, which left cached values stale (one section never lit). */
   var navLinks = document.querySelectorAll('.nav__links a');
-  var SPY = { home: 'Arrive', services: 'The pamper', gallery: 'The glow-up', reviews: 'Kind words', team: 'Meet Rosie', faq: 'Ask Rosie', book: 'Book a groom', visit: 'Find us' };
-  var spySecs = [];
-  function measureSpy() {
-    spySecs = Object.keys(SPY).map(function (id) {
-      var el = document.getElementById(id);
-      return el ? { id: id, label: SPY[id], top: el.offsetTop } : null;
-    }).filter(Boolean).sort(function (a, b) { return a.top - b.top; });
-  }
-  var curSpy = '';
+  var SPY_IDS = ['home', 'services', 'gallery', 'reviews', 'team', 'faq', 'book', 'visit'];
+  var spySecs = SPY_IDS.map(function (id) { return document.getElementById(id); }).filter(Boolean);
+  var curSpy = '', spyTicking = false;
   function updateSpy() {
     if (!spySecs.length) return;
-    var line = (window.scrollY || 0) + 120, cur = spySecs[0];
-    for (var i = 0; i < spySecs.length; i++) { if (spySecs[i].top <= line) cur = spySecs[i]; else break; }
-    if (cur.label === curSpy) return;
-    curSpy = cur.label;
-    if (spyLabel) {
-      if (reduce) spyLabel.textContent = cur.label;
-      else { spyLabel.style.opacity = '0'; setTimeout(function () { spyLabel.textContent = cur.label; spyLabel.style.opacity = '1'; }, 130); }
+    var cur = spySecs[0];
+    for (var i = 0; i < spySecs.length; i++) {
+      if (spySecs[i].getBoundingClientRect().top <= 120) cur = spySecs[i]; else break;
     }
+    if (cur.id === curSpy) return;
+    curSpy = cur.id;
     navLinks.forEach(function (a) { a.classList.toggle('is-current', a.getAttribute('href') === '#' + cur.id); });
   }
-  measureSpy(); updateSpy();
-  window.addEventListener('scroll', updateSpy, { passive: true });
-  window.addEventListener('load', function () { measureSpy(); updateSpy(); });
+  function onScrollSpy() {
+    if (spyTicking) return; spyTicking = true;
+    requestAnimationFrame(function () { updateSpy(); spyTicking = false; });
+  }
+  updateSpy();
+  window.addEventListener('scroll', onScrollSpy, { passive: true });
+  window.addEventListener('load', updateSpy);
 
   /* ---------- Mobile overlay menu ---------- */
   var hamburger = document.getElementById('hamburger'),
@@ -396,7 +393,7 @@
     window.addEventListener('load', function () { setTimeout(buildTrail, 400); });
     window.addEventListener('scroll', onScrollTrail, { passive: true });
     var rt;
-    window.addEventListener('resize', function () { clearTimeout(rt); rt = setTimeout(function () { buildTrail(); measureSpy(); updateSpy(); }, 200); }, { passive: true });
+    window.addEventListener('resize', function () { clearTimeout(rt); rt = setTimeout(function () { buildTrail(); updateSpy(); }, 200); }, { passive: true });
     // rebuild when a FAQ item toggles (height change)
     document.querySelectorAll('.qa').forEach(function (q) { q.addEventListener('toggle', function () { clearTimeout(rt); rt = setTimeout(buildTrail, 60); }); });
   }
