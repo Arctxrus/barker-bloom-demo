@@ -280,22 +280,33 @@
     var mobile = vw < 768 || gutter < 60;
     var showStations = !mobile && gutter >= 108;
 
-    // waypoints: vertical centre of each main section, alternating side
+    // Waypoints: TWO per section at the same x, so the path runs vertically down
+    // one gutter for the whole section and only crosses the content column in the
+    // seam between sections (which is padding, not copy).
     var secs = Array.prototype.slice.call(document.querySelectorAll('main > section'));
     var navBottom = 96;
     var pts = [];
     secs.forEach(function (sec, i) {
       var top = sec.offsetTop, h = sec.offsetHeight;
-      var y = top + h * 0.5;
-      y = Math.max(navBottom + 40, Math.min(docH - 60, y));
       var x;
       if (mobile) {
-        // hug the edges (never behind centred headings)
-        x = (i % 2 ? vw * 0.955 : vw * 0.045);
+        // No usable gutter: keep the trail on ONE edge with a tiny wiggle so it
+        // never runs under the (centred) headings. Sits just outside the
+        // container's padding box.
+        x = 9 + (i % 2 ? 2 : 0);
       } else {
         x = (i % 2 ? vw - gutter * 0.5 : gutter * 0.5);
       }
-      pts.push({ x: x, y: y, sec: sec });
+      var clamp = function (y) { return Math.max(navBottom + 40, Math.min(docH - 60, y)); };
+      // enter near the top of the section and leave near the bottom, same side
+      pts.push({ x: x, y: clamp(top + h * 0.16), sec: sec, station: true });
+      pts.push({ x: x, y: clamp(top + h * 0.88), sec: sec, station: false });
+      // Desktop only: hand over to the next section mid-seam so the sideways
+      // crossing lands in the gap between sections, not through a column of copy.
+      // On narrow screens there is no gutter to cross back into, so the trail
+      // stays on one edge the whole way down instead (see x above).
+      var next = secs[i + 1];
+      if (next && !mobile) pts.push({ x: vw * 0.5, y: clamp(next.offsetTop), sec: sec, station: false });
     });
     if (pts.length < 2) return;
 
@@ -317,13 +328,34 @@
     svg.appendChild(thread);
     threadLen = thread.getTotalLength();
 
+    // Content boxes (document coords) so paws can be dropped where they'd sit on
+    // top of copy. Phones have no real gutter, so the trail shows in the gaps.
+    var blockers = [];
+    if (mobile) {
+      var sy = window.scrollY || 0;
+      document.querySelectorAll('main h1,main h2,main h3,main p,main li,main a,main button,main label,main td,main th,main summary,main input,main select,main figcaption')
+        .forEach(function (el) {
+          var r = el.getBoundingClientRect();
+          if (r.width > 0 && r.height > 0) blockers.push({ l: r.left, r: r.right, t: r.top + sy, b: r.bottom + sy });
+        });
+    }
+    function clashes(cx, cy, half) {
+      for (var j = 0; j < blockers.length; j++) {
+        var bx = blockers[j];
+        if (cx + half > bx.l && cx - half < bx.r && cy + half > bx.t && cy - half < bx.b) return true;
+      }
+      return false;
+    }
+
     // paws along the path
-    var pawSize = mobile ? 16 : 26;
-    var spacing = mobile ? 170 : 185;
+    var pawSize = mobile ? 13 : 26;
+    var spacing = mobile ? 150 : 185;
     var count = Math.max(6, Math.floor(threadLen / spacing));
+    var halfExtent = (pawSize / 2) * 1.42;   // rotated square's diagonal
     for (var k = 1; k < count; k++) {
       var len = (k / count) * threadLen;
       var pt = thread.getPointAtLength(len);
+      if (mobile && clashes(pt.x, pt.y, halfExtent)) continue;   // sits on copy: skip it
       var pt2 = thread.getPointAtLength(Math.min(threadLen, len + 1));
       var ang = Math.atan2(pt2.y - pt.y, pt2.x - pt.x) * 180 / Math.PI + 90;
       var g = document.createElementNS(SVGNS, 'g');
@@ -338,6 +370,7 @@
     // stations (desktop, roomy gutters only): the 4 data-stage sections
     if (showStations) {
       pts.forEach(function (p) {
+        if (!p.station) return;                 // one station per section, not per waypoint
         var label = p.sec.getAttribute('data-stage');
         if (!label) return;
         var g = document.createElementNS(SVGNS, 'g');
@@ -396,5 +429,20 @@
     window.addEventListener('resize', function () { clearTimeout(rt); rt = setTimeout(function () { buildTrail(); updateSpy(); }, 200); }, { passive: true });
     // rebuild when a FAQ item toggles (height change)
     document.querySelectorAll('.qa').forEach(function (q) { q.addEventListener('toggle', function () { clearTimeout(rt); rt = setTimeout(buildTrail, 60); }); });
+    // Lazy images land after build and shift everything below them, which would
+    // leave the path (and the "skip paws that sit on copy" test) measured against
+    // stale positions. Rebuild whenever the document's height actually changes.
+    if ('ResizeObserver' in window) {
+      var lastH = document.body.scrollHeight, ro;
+      ro = new ResizeObserver(function () {
+        var h = document.body.scrollHeight;
+        if (Math.abs(h - lastH) < 24) return;
+        lastH = h; clearTimeout(rt); rt = setTimeout(function () { buildTrail(); updateSpy(); }, 120);
+      });
+      ro.observe(document.body);
+    }
+    document.querySelectorAll('img').forEach(function (im) {
+      if (!im.complete) im.addEventListener('load', function () { clearTimeout(rt); rt = setTimeout(buildTrail, 150); }, { once: true });
+    });
   }
 })();
