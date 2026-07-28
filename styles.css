@@ -327,10 +327,13 @@ section.hero{padding-top:var(--nav-space);padding-bottom:clamp(36px,6vw,72px)}
 .rosie-avatar{flex:none;width:36px;height:36px;border-radius:50%;background:var(--sage-bold);color:var(--ink);display:grid;place-items:center;font-family:var(--font-head);font-weight:600}
 .bubble-a{background:var(--surface);border:1px solid var(--border);padding:14px 18px;border-radius:18px 18px 18px 4px;color:var(--ink);box-shadow:var(--shadow-sm)}
 .bubble-a a{color:var(--clay-deep)}
-/* contact links: guarantee a 44px tap target (WCAG 2.5.8) from one rule */
-a[href^="tel:"],a[href^="mailto:"]{padding-block:11px;display:inline-block}
+/* Inline prose contact links get a 44px tap target (WCAG 2.5.8). :where() keeps
+   this at ZERO specificity, so components that own their own layout (the sticky
+   bar's Call button, the drawer, the ticket) are never clobbered by it. */
+a:where([href^="tel:"],[href^="mailto:"]){padding-block:11px;display:inline-block}
 .ticket__contact a,.footer__contact a{display:inline-flex;align-items:center;min-height:44px;padding-block:0}
-.mobile-menu__call{min-height:44px}
+.mobile-menu__call{min-height:44px;padding-block:0}
+.mobar__call{padding-block:0}
 @media (min-width:820px){
   .chat{grid-template-columns:1fr 1fr}
   .qa{align-self:start}
