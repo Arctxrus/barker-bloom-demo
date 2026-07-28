@@ -262,187 +262,70 @@
   }
 
   /* ==========================================================
-     PAW TRAIL — content-aware SVG path that draws on scroll
+     PAW FIELD — ambient scattered paws on three depth layers.
+     Each layer is translated by scrollY * factor, so it scrolls
+     slower than the page and reads as further away.
      ========================================================== */
-  var trailHost = document.getElementById('pawTrail');
-  var PAW_D = 'M12 14.5c2.2 0 4.4 1.6 4.4 3.6 0 1.4-1.2 2.4-2.8 2.4-.8 0-1.2-.3-1.6-.3s-.8.3-1.6.3c-1.6 0-2.8-1-2.8-2.4 0-2 2.2-3.6 4.4-3.6ZM6.4 8.8a1.9 2.4 0 1 0 .01 0ZM17.6 8.8a1.9 2.4 0 1 0 .01 0ZM9.4 5.4a1.7 2.2 0 1 0 .01 0ZM14.6 5.4a1.7 2.2 0 1 0 .01 0Z';
-  var thread = null, paws = [], stations = [], threadLen = 0, docH = 0, vh = 0;
-
-  function buildTrail() {
-    if (!trailHost) return;
-    trailHost.innerHTML = '';
-    paws = []; stations = [];
-    var vw = document.documentElement.clientWidth;
-    vh = window.innerHeight;
-    docH = document.body.scrollHeight;
-    var contentW = Math.min(vw - 32, 1200);
-    var gutter = (vw - contentW) / 2;
-    var mobile = vw < 768 || gutter < 60;
-    var showStations = !mobile && gutter >= 108;
-
-    // Waypoints: TWO per section at the same x, so the path runs vertically down
-    // one gutter for the whole section and only crosses the content column in the
-    // seam between sections (which is padding, not copy).
-    var secs = Array.prototype.slice.call(document.querySelectorAll('main > section'));
-    var navBottom = 96;
-    var pts = [];
-    secs.forEach(function (sec, i) {
-      var top = sec.offsetTop, h = sec.offsetHeight;
-      var x;
-      if (mobile) {
-        // No usable gutter: keep the trail on ONE edge with a tiny wiggle so it
-        // never runs under the (centred) headings. Sits just outside the
-        // container's padding box.
-        x = 9 + (i % 2 ? 2 : 0);
-      } else {
-        x = (i % 2 ? vw - gutter * 0.5 : gutter * 0.5);
-      }
-      var clamp = function (y) { return Math.max(navBottom + 40, Math.min(docH - 60, y)); };
-      // enter near the top of the section and leave near the bottom, same side
-      pts.push({ x: x, y: clamp(top + h * 0.16), sec: sec, station: true });
-      pts.push({ x: x, y: clamp(top + h * 0.88), sec: sec, station: false });
-      // Desktop only: hand over to the next section mid-seam so the sideways
-      // crossing lands in the gap between sections, not through a column of copy.
-      // On narrow screens there is no gutter to cross back into, so the trail
-      // stays on one edge the whole way down instead (see x above).
-      var next = secs[i + 1];
-      if (next && !mobile) pts.push({ x: vw * 0.5, y: clamp(next.offsetTop), sec: sec, station: false });
-    });
-    if (pts.length < 2) return;
-
-    var svg = document.createElementNS(SVGNS, 'svg');
-    svg.setAttribute('width', vw); svg.setAttribute('height', docH);
-    svg.setAttribute('viewBox', '0 0 ' + vw + ' ' + docH);
-    svg.setAttribute('preserveAspectRatio', 'none');
-
-    // smooth path (Catmull-Rom -> cubic bezier)
-    var d = 'M ' + pts[0].x + ' ' + pts[0].y;
-    for (var i = 0; i < pts.length - 1; i++) {
-      var p0 = pts[i - 1] || pts[i], p1 = pts[i], p2 = pts[i + 1], p3 = pts[i + 2] || p2;
-      var c1x = p1.x + (p2.x - p0.x) / 6, c1y = p1.y + (p2.y - p0.y) / 6;
-      var c2x = p2.x - (p3.x - p1.x) / 6, c2y = p2.y - (p3.y - p1.y) / 6;
-      d += ' C ' + c1x + ' ' + c1y + ' ' + c2x + ' ' + c2y + ' ' + p2.x + ' ' + p2.y;
-    }
-    thread = document.createElementNS(SVGNS, 'path');
-    thread.setAttribute('class', 'thread'); thread.setAttribute('d', d);
-    svg.appendChild(thread);
-    threadLen = thread.getTotalLength();
-
-    // Content boxes (document coords) so paws can be dropped where they'd sit on
-    // top of copy. Phones have no real gutter, so the trail shows in the gaps.
-    var blockers = [];
-    if (mobile) {
-      var sy = window.scrollY || 0;
-      document.querySelectorAll('main h1,main h2,main h3,main p,main li,main a,main button,main label,main td,main th,main summary,main input,main select,main figcaption')
-        .forEach(function (el) {
-          var r = el.getBoundingClientRect();
-          if (r.width > 0 && r.height > 0) blockers.push({ l: r.left, r: r.right, t: r.top + sy, b: r.bottom + sy });
-        });
-    }
-    function clashes(cx, cy, half) {
-      for (var j = 0; j < blockers.length; j++) {
-        var bx = blockers[j];
-        if (cx + half > bx.l && cx - half < bx.r && cy + half > bx.t && cy - half < bx.b) return true;
-      }
-      return false;
-    }
-
-    // paws along the path
-    var pawSize = mobile ? 13 : 26;
-    var spacing = mobile ? 150 : 185;
-    var count = Math.max(6, Math.floor(threadLen / spacing));
-    var halfExtent = (pawSize / 2) * 1.42;   // rotated square's diagonal
-    for (var k = 1; k < count; k++) {
-      var len = (k / count) * threadLen;
-      var pt = thread.getPointAtLength(len);
-      if (mobile && clashes(pt.x, pt.y, halfExtent)) continue;   // sits on copy: skip it
-      var pt2 = thread.getPointAtLength(Math.min(threadLen, len + 1));
-      var ang = Math.atan2(pt2.y - pt.y, pt2.x - pt.x) * 180 / Math.PI + 90;
-      var g = document.createElementNS(SVGNS, 'g');
-      g.setAttribute('class', 'paw');
-      var s = pawSize / 24;
-      g.setAttribute('transform', 'translate(' + pt.x + ',' + pt.y + ') rotate(' + ang + ') scale(' + s + ') translate(-12,-12)');
-      var path = document.createElementNS(SVGNS, 'path'); path.setAttribute('d', PAW_D);
-      g.appendChild(path); svg.appendChild(g);
-      paws.push({ el: g, y: pt.y });
-    }
-
-    // stations (desktop, roomy gutters only): the 4 data-stage sections
-    if (showStations) {
-      pts.forEach(function (p) {
-        if (!p.station) return;                 // one station per section, not per waypoint
-        var label = p.sec.getAttribute('data-stage');
-        if (!label) return;
-        var g = document.createElementNS(SVGNS, 'g');
-        g.setAttribute('class', 'station');
-        g.setAttribute('transform', 'translate(' + p.x + ',' + p.y + ')');
-        var c = document.createElementNS(SVGNS, 'circle');
-        c.setAttribute('r', '20'); g.appendChild(c);
-        var pw = document.createElementNS(SVGNS, 'path');
-        pw.setAttribute('class', 'st-paw'); pw.setAttribute('d', PAW_D);
-        pw.setAttribute('transform', 'scale(1.05) translate(-12,-12)'); g.appendChild(pw);
-        var t = document.createElementNS(SVGNS, 'text');
-        t.setAttribute('text-anchor', 'middle'); t.setAttribute('y', '42'); t.textContent = label;
-        g.appendChild(t);
-        svg.appendChild(g); stations.push({ el: g, y: p.y });
+  var field = document.getElementById('pawField');
+  if (field) {
+    var PAW_D = 'M12 14.5c2.2 0 4.4 1.6 4.4 3.6 0 1.4-1.2 2.4-2.8 2.4-.8 0-1.2-.3-1.6-.3s-.8.3-1.6.3c-1.6 0-2.8-1-2.8-2.4 0-2 2.2-3.6 4.4-3.6ZM6.4 8.8a1.9 2.4 0 1 0 .01 0ZM17.6 8.8a1.9 2.4 0 1 0 .01 0ZM9.4 5.4a1.7 2.2 0 1 0 .01 0ZM14.6 5.4a1.7 2.2 0 1 0 .01 0Z';
+    // deterministic scatter so the pattern is stable across reloads/resizes
+    var seed = 20260728;
+    function rnd() { seed = (seed * 1664525 + 1013904223) % 4294967296; return seed / 4294967296; }
+    // furthest layer first: smallest, faintest, slowest-looking (largest factor).
+    // `spacing` is roughly one paw per N px of that layer's visible band.
+    var LAYERS = [
+      { spacing: 120, size: 17, cls: 'far',  factor: 0.50 },
+      { spacing: 210, size: 28, cls: 'mid',  factor: 0.32 },
+      { spacing: 360, size: 42, cls: 'near', factor: 0.17 }
+    ];
+    var layerEls = [];
+    function buildField() {
+      seed = 20260728;                       // reset so the scatter is reproducible
+      field.innerHTML = ''; layerEls = [];
+      var docH = document.documentElement.scrollHeight, vh = window.innerHeight;
+      var svgns = 'http://www.w3.org/2000/svg';
+      LAYERS.forEach(function (L) {
+        var el = document.createElement('div');
+        el.className = 'paw-layer paw-layer--' + L.cls;
+        // A layer translating down by scrollY*f only ever reveals this much of
+        // itself, so scatter within that band instead of the whole page height
+        // (otherwise the slowest layer wastes half its paws off-screen).
+        var band = (docH - vh) * (1 - L.factor) + vh;
+        var n = Math.max(6, Math.round(band / L.spacing));
+        for (var i = 0; i < n; i++) {
+          var s = document.createElementNS(svgns, 'svg');
+          s.setAttribute('viewBox', '0 0 24 24');
+          s.setAttribute('width', L.size); s.setAttribute('height', L.size);
+          s.style.left = (rnd() * 94 + 3) + '%';
+          s.style.top = Math.round(rnd() * band) + 'px';
+          s.style.transform = 'rotate(' + Math.round(rnd() * 360) + 'deg)';
+          var pa = document.createElementNS(svgns, 'path'); pa.setAttribute('d', PAW_D);
+          s.appendChild(pa); el.appendChild(s);
+        }
+        field.appendChild(el);
+        layerEls.push({ el: el, factor: L.factor });
       });
     }
+    buildField();
+    var fRt;
+    function rebuildField() { clearTimeout(fRt); fRt = setTimeout(function () { buildField(); moveField(); }, 200); }
+    window.addEventListener('resize', rebuildField, { passive: true });
+    window.addEventListener('load', rebuildField);
 
-    trailHost.appendChild(svg);
-    thread.style.strokeDasharray = threadLen;
-    updateTrail(true);
-  }
-
-  function updateTrail(force) {
-    if (!thread) return;
-    if (reduce) {
-      thread.style.strokeDashoffset = 0;
-      paws.forEach(function (p) { p.el.classList.add('is-in'); });
-      stations.forEach(function (s) { s.el.classList.add('is-in'); });
-      return;
-    }
-    var sy = window.scrollY || window.pageYOffset;
-    // Lead the scroll: draw the thread down to ~just below the viewport bottom,
-    // so the line reaches the content you're reading instead of trailing behind.
-    var progress = Math.max(0, Math.min(1, (sy + vh * 0.98) / (docH || 1)));
-    thread.style.strokeDashoffset = threadLen * (1 - progress);
-    // toggle (not latch) so the trail rewinds when you scroll back up
-    var revealY = sy + vh * 0.94;
-    paws.forEach(function (p) { p.el.classList.toggle('is-in', p.y <= revealY); });
-    stations.forEach(function (s) { s.el.classList.toggle('is-in', s.y <= revealY); });
-  }
-
-  var ticking = false;
-  function onScrollTrail() {
-    if (ticking) return; ticking = true;
-    requestAnimationFrame(function () { updateTrail(); ticking = false; });
-  }
-
-  if (trailHost) {
-    var ready = function () { buildTrail(); };
-    if (document.readyState === 'complete') ready();
-    else window.addEventListener('load', ready);
-    // rebuild after fonts/images may shift height
-    window.addEventListener('load', function () { setTimeout(buildTrail, 400); });
-    window.addEventListener('scroll', onScrollTrail, { passive: true });
-    var rt;
-    window.addEventListener('resize', function () { clearTimeout(rt); rt = setTimeout(function () { buildTrail(); updateSpy(); }, 200); }, { passive: true });
-    // rebuild when a FAQ item toggles (height change)
-    document.querySelectorAll('.qa').forEach(function (q) { q.addEventListener('toggle', function () { clearTimeout(rt); rt = setTimeout(buildTrail, 60); }); });
-    // Lazy images land after build and shift everything below them, which would
-    // leave the path (and the "skip paws that sit on copy" test) measured against
-    // stale positions. Rebuild whenever the document's height actually changes.
-    if ('ResizeObserver' in window) {
-      var lastH = document.body.scrollHeight, ro;
-      ro = new ResizeObserver(function () {
-        var h = document.body.scrollHeight;
-        if (Math.abs(h - lastH) < 24) return;
-        lastH = h; clearTimeout(rt); rt = setTimeout(function () { buildTrail(); updateSpy(); }, 120);
+    var fTicking = false;
+    function moveField() {
+      var y = window.scrollY || window.pageYOffset || 0;
+      layerEls.forEach(function (L) {
+        L.el.style.transform = 'translate3d(0,' + (y * L.factor).toFixed(1) + 'px,0)';
       });
-      ro.observe(document.body);
     }
-    document.querySelectorAll('img').forEach(function (im) {
-      if (!im.complete) im.addEventListener('load', function () { clearTimeout(rt); rt = setTimeout(buildTrail, 150); }, { once: true });
-    });
+    if (!reduce) {
+      window.addEventListener('scroll', function () {
+        if (fTicking) return; fTicking = true;
+        requestAnimationFrame(function () { moveField(); fTicking = false; });
+      }, { passive: true });
+      moveField();
+    }
   }
 })();

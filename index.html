@@ -17,7 +17,7 @@
 <link rel="preconnect" href="https://images.unsplash.com" crossorigin />
 <link rel="preload" href="fonts/fredoka-latin.woff2" as="font" type="font/woff2" crossorigin />
 <link rel="preload" href="fonts/nunitosans-latin.woff2" as="font" type="font/woff2" crossorigin />
-<link rel="stylesheet" href="styles.css?v=12" />
+<link rel="stylesheet" href="styles.css?v=13" />
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%90%BE%3C/text%3E%3C/svg%3E" />
 
 <script type="application/ld+json">
@@ -82,13 +82,13 @@
   </a>
 </nav>
 
-<!-- Decorative paw scroll-trail (built by JS; aria-hidden) -->
-<div class="paw-trail" id="pawTrail" aria-hidden="true"></div>
+<!-- Ambient paw background: three parallax depth layers (built by JS) -->
+<div class="paw-field" id="pawField" aria-hidden="true"></div>
 
 <main id="main">
 
   <!-- ============ HERO · "Arrive" ============ -->
-  <section class="hero" id="home" data-stage="Arrive">
+  <section class="hero" id="home">
     <div class="container hero__grid">
       <div class="hero__copy">
         <h1>Grooming your dog will actually look&nbsp;forward&nbsp;to.</h1>
@@ -140,7 +140,7 @@
   </section>
 
   <!-- ============ SERVICES · "The pamper" · bento ============ -->
-  <section class="services" id="services" data-stage="The pamper">
+  <section class="services" id="services">
     <div class="container">
       <header class="section__head">
         <h2>Simple, honest prices for your dog’s size</h2>
@@ -208,7 +208,7 @@
   </section>
 
   <!-- ============ BEFORE / AFTER · "The glow-up" · sliders ============ -->
-  <section class="gallery" id="gallery" data-stage="The glow-up">
+  <section class="gallery" id="gallery">
     <div class="container">
       <header class="section__head">
         <h2>A little before &amp; after</h2>
@@ -344,7 +344,7 @@
   </section>
 
   <!-- ============ BOOKING · "Book their day out" · stepper ============ -->
-  <section class="book" id="book" data-stage="Book their day out">
+  <section class="book" id="book">
     <div class="container">
       <header class="section__head">
         <h2>Request a booking</h2>
@@ -526,6 +526,6 @@
   <a class="btn btn--primary mobar__book" href="#book">Book a groom</a>
 </div>
 
-<script src="script.js?v=12" defer></script>
+<script src="script.js?v=13" defer></script>
 </body>
 </html>
