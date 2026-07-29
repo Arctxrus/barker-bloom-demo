@@ -14,9 +14,12 @@
 
 /* ---------- Tokens ---------- */
 :root{
-  --cream:#FFF9F3; --surface:#FFFFFF; --ink:#3E2B22; --muted:#7A6357;
+  --cream:#FFF9F3; --surface:#FFFFFF; --ink:#3E2B22; --muted:#6B5548;
   --clay:#C0523C; --clay-bright:#E07856; --clay-deep:#A5432F; --sage:#4E6B49;
   --border:#EFE2D6; --focus:#2F6DB0; --error:#B23B2E;
+  /* --clay-deep is AA on cream/white but NOT on the bold tints, so accent text
+     sitting on a bold tile/bubble uses --on-tint instead. --star likewise. */
+  --on-tint:#7E3220; --star:#6B410C;
   /* soft tints (large fills) */
   --blush:#FBE3DD; --butter:#FCEBCB; --sky:#CFE3E8; --sage-mint:#DCE7D8; --lilac:#E7E0F0; --peach:#FBE0CE;
   /* BOLD tints (blocks, chips, tiles) */
@@ -76,8 +79,11 @@ section[id]{padding-block:clamp(48px,8vw,96px)}
   transition:transform .16s var(--ease),background-color .16s var(--ease),box-shadow .16s var(--ease);line-height:1.1}
 .btn:hover{background:var(--clay-deep);text-decoration:none;transform:translateY(-2px);box-shadow:var(--shadow-md)}
 .btn:active{transform:translateY(0) scale(.98)}
-.btn--ghost{background:transparent;color:var(--clay-deep);box-shadow:inset 0 0 0 2px var(--clay)}
-.btn--ghost:hover{background:rgba(192,82,60,.08);color:var(--clay-deep);box-shadow:inset 0 0 0 2px var(--clay-deep)}
+/* the default .btn is already clay; state it explicitly so the modifier on
+   ~11 buttons isn't a no-op hook that silently drifts from the base */
+.btn--primary{background:var(--clay);color:#fff}
+.btn--ghost{background:transparent;color:var(--on-tint);box-shadow:inset 0 0 0 2px var(--clay)}
+.btn--ghost:hover{background:rgba(192,82,60,.08);color:var(--on-tint);box-shadow:inset 0 0 0 2px var(--clay-deep)}
 .btn--sm{min-height:44px;padding:.55em 1.1em;font-size:.9375rem}
 .btn--lg{min-height:54px;padding:.8em 1.7em;font-size:1.0625rem}
 
@@ -196,7 +202,7 @@ section.hero{padding-top:var(--nav-space);padding-bottom:clamp(36px,6vw,72px)}
 .tile__prices{list-style:none;margin:0 0 16px;padding:0;display:flex;flex-direction:column;gap:2px}
 .tile__prices li{display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid rgba(62,43,34,.14)}
 .tile__prices li:last-child{border-bottom:0}
-.tile__prices b,.tile__addons b,.tile__price-lg b{font-family:var(--font-head);color:var(--clay-deep);font-variant-numeric:tabular-nums}
+.tile__prices b,.tile__addons b,.tile__price-lg b{font-family:var(--font-head);color:var(--on-tint);font-variant-numeric:tabular-nums}
 .tile__price-lg{font-family:var(--font-head);font-size:1rem}
 .tile__price-lg b{font-size:2rem}.tile__price-lg span{color:var(--ink);opacity:.7;font-size:.9375rem;font-family:var(--font-body)}
 .tile__addons{list-style:none;margin:0;padding:0}
@@ -250,7 +256,7 @@ section.hero{padding-top:var(--nav-space);padding-bottom:clamp(36px,6vw,72px)}
 .ba__handle span::before{left:11px;border-right:8px solid var(--clay)}
 .ba__handle span::after{right:11px;border-left:8px solid var(--clay)}
 .ba__stage:focus-visible{outline:3px solid var(--focus);outline-offset:3px}
-.ba figcaption{padding:14px 6px 4px;color:var(--muted);font-size:.9375rem}
+.ba figcaption{padding:14px 6px 4px;color:var(--ink);font-size:.9375rem}
 .ba figcaption strong{color:var(--ink);font-family:var(--font-head)}
 .demo-note{display:inline-block;font-size:.875rem;color:var(--muted);background:var(--butter);border-radius:var(--r-pill);padding:6px 14px;margin-top:4px}
 @media (min-width:800px){.ba-wrap{grid-template-columns:1fr 1fr}}
@@ -267,7 +273,7 @@ section.hero{padding-top:var(--nav-space);padding-bottom:clamp(36px,6vw,72px)}
 .rating-line{display:flex;align-items:center;justify-content:center;gap:12px;max-width:520px;margin:0 auto 24px;
   color:var(--muted);font-weight:600;font-size:1rem}
 .rating-line::before,.rating-line::after{content:"";height:1px;flex:1;max-width:70px;background:var(--border)}
-.rating-line__stars{color:#B5701A}
+.rating-line__stars{color:var(--star)}
 .rating-line strong{color:var(--ink);font-variant-numeric:tabular-nums}
 .rating-line--sm{font-size:.875rem;margin:2px auto 14px}
 
@@ -286,8 +292,8 @@ section.hero{padding-top:var(--nav-space);padding-bottom:clamp(36px,6vw,72px)}
 .bubble{margin:0;position:relative;border-radius:22px;padding:20px 20px 18px;box-shadow:var(--shadow-md)}
 .bubble::after{content:"";position:absolute;left:32px;bottom:-13px;width:26px;height:26px;background:inherit;border-radius:0 0 6px 0;transform:rotate(20deg) skew(-8deg)}
 .bubble p{font-size:1rem;color:var(--ink);margin:.2em 0 .8em}
-.stars{color:#B5701A;letter-spacing:2px;font-size:1rem}
-.bubble cite{display:flex;align-items:center;gap:.55em;font-style:normal;font-weight:700;color:var(--clay-deep);font-size:.9375rem}
+.stars{color:var(--star);letter-spacing:2px;font-size:1rem}
+.bubble cite{display:flex;align-items:center;gap:.55em;font-style:normal;font-weight:700;color:var(--on-tint);font-size:.9375rem}
 .avatar{display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,.7);color:var(--clay-deep);font-family:var(--font-head);font-weight:600}
 @media (min-width:640px){.bubbles{grid-template-columns:1fr 1fr}}
 @media (min-width:960px){
