@@ -70,7 +70,13 @@ main section[id],#book,#visit,#services,#gallery,#reviews,#team,#faq{scroll-marg
 .section__head h2{font-size:clamp(1.6rem,4vw,2.4rem)}
 .section__lead{color:var(--muted);font-size:1.0625rem;text-wrap:pretty}
 section[id]{padding-block:clamp(48px,8vw,96px)}
-.trust{padding-block:0}
+/* The marquee is the one place where content itself runs edge-to-edge (a marquee
+   has to bleed, or chips clip at an arbitrary inner boundary). Giving it its own
+   full-bleed band justifies that: it joins the reviews/booking/footer bands
+   instead of looking like chips escaping the 1200px column. White keeps every
+   chip tint separating cleanly and adds a new surface to the vertical rhythm. */
+.trust{background:var(--surface);padding-block:10px;
+  box-shadow:inset 0 1px 0 var(--border),inset 0 -1px 0 var(--border)}
 
 /* ---------- Buttons ---------- */
 .btn{--btn-bg:var(--clay);--btn-fg:#fff;display:inline-flex;align-items:center;justify-content:center;gap:.5em;
